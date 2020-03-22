@@ -57,7 +57,7 @@ class Blockchain:
             return False
 
         if not Blockchain.is_valid_proof(block, proof):
-            print(block.hash, block.compute_hash())
+            print("Problem with hash")
             return False
 
         block.hash = proof
@@ -172,7 +172,8 @@ class Blockchain:
         """
 
         for peer in peers:
-            block_new = copy.deepcopy(block)
+            block_new = Block(block.index, block.transactions, block.timestamp, block.previous_hash)
+            block_new.nonce = block.nonce
             proof = block.hash
             added = peer.blockchain.add_block(block_new, proof)
 
@@ -184,12 +185,16 @@ class Blockchain:
 
     def mine_and_announce(self, peers):
         result = self.mine()
+        block = self.last_block
+
         if not result:
             return "No transactions to mine"
         else:
             for peer in peers:
-                block_new = copy.deepcopy(self.last_block)
-                proof = copy.deepcopy(self.last_block.hash)
+                block_new = Block(block.index, block.transactions, block.timestamp,
+                                     block.previous_hash)
+                block_new.nonce = block.nonce
+                proof = block.hash
                 peer.blockchain.add_block(block_new, proof)
 
             return "Block #{} is mined.".format(self.last_block.index)

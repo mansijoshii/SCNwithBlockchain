@@ -37,11 +37,18 @@ manufacture.mine()
 #Registering another node with the pre-existing blockchain
 retailer = Node()
 manufacture.register_node(retailer)
-retailer.display_chain()
+#retailer.display_chain()
 
 #Mining and announcing the transaction to node's peers
 retailer.transaction("recieve", "warehouse", 23)
 retailer.mine()
-manufacture.display_chain()
+#retailer.display_chain()
+#manufacture.display_chain()
 
+retailer.transaction("recieve", "warehouse", 344)
+retailer.mine()
+#manufacture.display_chain()
 
+wholesaler = Node()
+retailer.register_node(wholesaler)
+wholesaler.display_chain()
