@@ -1,7 +1,7 @@
 from hashlib import sha256
 import json
 import time
-
+import copy
 
 class Block:
     def __init__(self, index, transactions, timestamp, previous_hash):
@@ -53,9 +53,11 @@ class Blockchain:
         previous_hash = self.last_block.hash
 
         if previous_hash != block.previous_hash:
+            print("Previous Hash Problem")
             return False
 
         if not Blockchain.is_valid_proof(block, proof):
+            print(block.hash, block.compute_hash())
             return False
 
         block.hash = proof
@@ -140,7 +142,7 @@ class Blockchain:
         return True
 
 
-    def consensus(self):
+    def consensus(self, peers):
         """
         Our naive consnsus algorithm. If a longer valid chain is
         found, our chain is replaced with it.
@@ -149,36 +151,30 @@ class Blockchain:
         longest_chain = None
         current_len = len(self.chain)
 
-        for node in self.peers:
+        for node in peers:
             length = len(node.blockchain.chain)
             chain = node.blockchain
-            if length > current_len and blockchain.check_chain_validity(chain):
+            if length > current_len and Blockchain.check_chain_validity(chain):
                 current_len = length
                 longest_chain = chain
 
         if longest_chain:
-            blockchain = longest_chain
+            self = longest_chain
             return True
 
         return False
 
-    def announce_new_block(self, block):
+    def announce_new_block(self, block, peers):
         """
         A function to announce to the network once a block has been mined.
         Other blocks can simply verify the proof of work and add it to their
         respective chains.
         """
-        block_data = json.dumps(block.__dict__, sort_keys=True)
 
-        for peer in self.peers:
-            block_new = Block(block_data["index"],
-                        block_data["transactions"],
-                        block_data["timestamp"],
-                        block_data["previous_hash"],
-                        block_data["nonce"])
-
-            proof = block_data['hash']
-            added = peer.add_block(block_new, proof)
+        for peer in peers:
+            block_new = copy.deepcopy(block)
+            proof = block.hash
+            added = peer.blockchain.add_block(block_new, proof)
 
             if not added:
                 return "The block was discarded by the node"
@@ -186,17 +182,16 @@ class Blockchain:
             return "Block added to the chain"
 
 
-    def mine_and_announce(self):
+    def mine_and_announce(self, peers):
         result = self.mine()
         if not result:
             return "No transactions to mine"
         else:
-            # Making sure we have the longest chain before announcing to the network
-            chain_length = len(self.chain)
-            #self.consensus()
-            if chain_length == len(self.chain):
-                # announce the recently mined block to the network
-                self.announce_new_block(self.last_block)
+            for peer in peers:
+                block_new = copy.deepcopy(self.last_block)
+                proof = copy.deepcopy(self.last_block.hash)
+                peer.blockchain.add_block(block_new, proof)
+
             return "Block #{} is mined.".format(self.last_block.index)
 
 
@@ -207,57 +202,7 @@ class Blockchain:
         print(chain_data)
 
 
-    def get_chain(self):
-        chain_data = []
-        for block in self.chain:
-            chain_data.append(block.__dict__)
-        #print(chain_data)
-        #return jsondumps({"length": len(chain_data),
-                    #    "chain": chain_data,
-                    #    "peers": list(self.blockchain.peers)})
 
-    def create_chain_from_dump(chain_dump):
-        generated_blockchain = Blockchain()
-        generated_blockchain.create_genesis_block()
-        for idx, block_data in enumerate(chain_dump):
-            if idx == 0:
-                continue  # skip genesis block
-            block = Block(block_data["index"],
-                        block_data["transactions"],
-                        block_data["timestamp"],
-                        block_data["previous_hash"],
-                        block_data["nonce"])
-            proof = block_data['hash']
-            added = generated_blockchain.add_block(block, proof)
-            if not added:
-                raise Exception("The chain dump is tampered!!")
-        return generated_blockchain
-
-
-    def register_new_peers(self, blockchain_instance):
-        
-        # Add the node to the peer list
-        self.peers.add(blockchain_instance)
-
-        # Return the consensus blockchain to the newly registered node
-        # so that he can sync
-        return self.get_chain()
-
-    def register_with_existing_node(self, blockchain_instance):
-        """
-        Internally calls the `register_node` endpoint to
-        register current node with the node specified in the
-        request, and sync the blockchain as well as peer data.
-        """
-        node_address = blockchain_instance
-        
-        response = self.register_new_peers(node_address)
-
-        # update chain and the peers
-        chain_dump = response.json()['chain']
-        blockchain_instance = create_chain_from_dump(chain_dump)
-        blockchain_instance.peers.update(response.json()['peers'])
-        return "Registration successful"
      
 
 
