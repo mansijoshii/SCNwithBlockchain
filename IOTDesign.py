@@ -50,13 +50,16 @@ def begin_chain ():
     cnt_completed = 0
     while (cnt_completed != 5):
         if (len(stock_of_goods) != 0):
+
             new_good = stock_of_goods.pop(0)
             who.receive(new_good)
             t = random.randint(1,5)
             sleep(t/100)
+
             who.send(new_good)
             t = random.randint(1,5)
             sleep(t/100)
+            
             ret.receive(new_good)
             cnt_completed += 1
 
