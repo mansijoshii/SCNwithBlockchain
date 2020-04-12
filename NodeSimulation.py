@@ -3,14 +3,23 @@ from Blockchain import Block
 import copy
 
 class Node:
-    def __init__(self):
+    def __init__(self, xcoord, ycoord):
         self.number_of_goods = 0
         self.blockchain = Blockchain()
         self.peers = []
         self.blockchain.create_genesis_block()
+        self.xcoord = xcoord
+        self.ycoord = ycoord
 
-    def transaction(self, type_of_transaction, type_of_place, count):
-        self.blockchain.add_new_transaction(type_of_transaction, type_of_place, count)
+    def produce (self, count_of_goods):
+        self.number_of_goods += count_of_goods
+    
+    def transaction(self, type_of_transaction, type_of_person, count_of_goods):
+        self.blockchain.add_new_transaction(type_of_transaction, type_of_person, count_of_goods)
+        if (type_of_transaction == "send"):
+            self.number_of_goods -= count_of_goods
+        if (type_of_transaction == "receive"):
+            self.number_of_goods += count_of_goods
 
     def mine(self):
         self.blockchain.mine_and_announce(self.peers)
@@ -27,28 +36,36 @@ class Node:
         self.blockchain.display_chain()
 
 
-#Creating a node and adding its transactions to the blockchain
-manufacture = Node()
-manufacture.transaction("send", "warehouse", 4)
-manufacture.transaction("send", "warehouse", 5)
-manufacture.mine()
-#manufacture.display_chain()
+# Creating SCN nodes and specifying their location
+manufacturer1 = Node(10, 25)
+manufacturer2 = Node(12, 22)
 
-#Registering another node with the pre-existing blockchain
-retailer = Node()
-manufacture.register_node(retailer)
-#retailer.display_chain()
+wholesaler1 = Node(25, 76)
+wholesaler2 = Node(30, 65)
+wholesaler3 = Node(27, 70)
 
-#Mining and announcing the transaction to node's peers
-retailer.transaction("recieve", "warehouse", 23)
-retailer.mine()
-#retailer.display_chain()
-#manufacture.display_chain()
+retailer1 = Node(56, 89)
+retailer2 = Node(43, 89)
 
-retailer.transaction("recieve", "warehouse", 344)
-retailer.mine()
-#manufacture.display_chain()
+# Registering Peers
+manufacturer1.register_node(manufacturer2)
+manufacturer1.register_node(wholesaler1)
+manufacturer1.register_node(wholesaler2)
+manufacturer1.register_node(wholesaler3)
+manufacturer1.register_node(retailer1)
+manufacturer1.register_node(retailer2)
 
-wholesaler = Node()
-retailer.register_node(wholesaler)
-wholesaler.display_chain()
+# Performing transactions, Mining and Announcing to Peers
+manufacturer1.produce(20)
+manufacturer2.produce(30)
+manufacturer1.transaction("send", "wholesaler2", 4)
+manufacturer1.mine()
+wholesaler2.transaction("receive", "manufacturer1", 4)
+wholesaler2.mine()
+manufacturer2.transaction("send", "wholesaler3", 5)
+manufacturer2.mine()
+wholesaler3.transaction("receive", "manufacturer2", 5)
+wholesaler3.mine()
+# print(manufacturer2.number_of_goods)
+
+manufacturer1.display_chain()

@@ -18,6 +18,9 @@ class Block:
         block_string = json.dumps(self.__dict__, sort_keys=True)
         return sha256(block_string.encode()).hexdigest()
 
+    def display_block(self):
+        print("Block :" + str(self.index))
+        print(self.transactions)
 
 
 class Blockchain:
@@ -204,7 +207,8 @@ class Blockchain:
         chain_data = []
         for block in self.chain:
             chain_data.append(block.__dict__)
-        print(chain_data)
+            block.display_block()
+        #print(chain_data)
 
 
 
