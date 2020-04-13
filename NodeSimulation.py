@@ -1,6 +1,7 @@
 from Blockchain import Blockchain
 from Blockchain import Block
 import copy
+import time
 
 class Node:
     def __init__(self, xcoord, ycoord):
@@ -47,6 +48,8 @@ wholesaler3 = Node(27, 70)
 retailer1 = Node(56, 89)
 retailer2 = Node(43, 89)
 
+attacker = Node(11, 23)
+
 # Registering Peers
 manufacturer1.register_node(manufacturer2)
 manufacturer1.register_node(wholesaler1)
@@ -56,16 +59,25 @@ manufacturer1.register_node(retailer1)
 manufacturer1.register_node(retailer2)
 
 # Performing transactions, Mining and Announcing to Peers
-manufacturer1.produce(20)
-manufacturer2.produce(30)
-manufacturer1.transaction("send", "wholesaler2", 4)
-manufacturer1.mine()
-wholesaler2.transaction("receive", "manufacturer1", 4)
-wholesaler2.mine()
-manufacturer2.transaction("send", "wholesaler3", 5)
-manufacturer2.mine()
-wholesaler3.transaction("receive", "manufacturer2", 5)
-wholesaler3.mine()
+# manufacturer1.produce(20)
+# manufacturer2.produce(30)
+# manufacturer1.transaction("send", "wholesaler2", 4)
+# manufacturer1.mine()
+# manufacturer2.transaction("send", "wholesaler3", 5)
+# manufacturer2.mine()
 # print(manufacturer2.number_of_goods)
+# manufacturer1.display_chain()
 
-manufacturer1.display_chain()
+# Measuring Performance
+t1 = time.time()
+cnt = 0
+while 1:
+    t2 = time.time()
+    if (t2 - t1 >= 10):
+        break
+    if (cnt % 2 == 0):
+        manufacturer1.transaction("send", "wholesaler1", 4)
+    elif (cnt % 2 == 1):
+        wholesaler1.transaction("send", "retailer1", 4)
+    cnt += 1
+print("Transactions per second = " + str(cnt/10))
