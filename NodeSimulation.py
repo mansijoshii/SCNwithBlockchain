@@ -2,6 +2,9 @@ from Blockchain import Blockchain
 from Blockchain import Block
 import copy
 import time
+import matplotlib.pyplot as plt 
+
+NUM_SIMULATIONS = 10
 
 class Node:
     def __init__(self, xcoord, ycoord):
@@ -69,15 +72,31 @@ manufacturer1.register_node(retailer2)
 # manufacturer1.display_chain()
 
 # Measuring Performance
-t1 = time.time()
-cnt = 0
-while 1:
-    t2 = time.time()
-    if (t2 - t1 >= 10):
-        break
-    if (cnt % 2 == 0):
-        manufacturer1.transaction("send", "wholesaler1", 4)
-    elif (cnt % 2 == 1):
-        wholesaler1.transaction("send", "retailer1", 4)
-    cnt += 1
-print("Transactions per second = " + str(cnt/10))
+transaction_cnt = []
+transaction_time = []
+for i in range(NUM_SIMULATIONS):
+    print("Running Simulation " + str(i+1))
+    cnt = 0
+    t1 = time.time()
+    while 1:
+        t2 = time.time()
+        if (t2 - t1 >= 3):
+            break
+        if (cnt % 2 == 0):
+            manufacturer1.transaction("send", "wholesaler1", 4)
+        elif (cnt % 2 == 1):
+            wholesaler1.transaction("send", "retailer1", 4)
+        cnt += 1
+    transaction_cnt.append(cnt)
+    transaction_time.append(time.time()-t1)
+
+tps = sum(transaction_cnt)/sum(transaction_time)
+
+print("Average throughput over " + str(NUM_SIMULATIONS) + " simulations is " + 
+    str(tps) + " transactions per second")
+
+plt.plot(transaction_cnt, transaction_time)
+plt.xlabel('Number of Transactions') 
+plt.ylabel('Confirmation time')  
+plt.title('Analysis of transactions and confirmation times') 
+plt.show() 
