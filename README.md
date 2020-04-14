@@ -1,4 +1,4 @@
-# IOTandBlockchain
+# SCNwithBlockchain
 
 The objective of this project is to construct a Supply Chain Network (SCN) secured with Blockchain and:
 To find the optimum route from a manufacturer to customer
