@@ -1,8 +1,8 @@
 # SCNwithBlockchain
 
 The objective of this project is to construct a Supply Chain Network (SCN) secured with Blockchain and:
-To find the optimum route from a manufacturer to customer
-To trace back the origin of a product
+  1. To find the optimum route from a manufacturer to customer
+  2. To trace back the origin of a product
 
 A supply chain network is used to simulate the behaviour of logistics over time. With an effective supply chain management, organisations can plan their operations well in advance in order to reduce costs and enhance profits. This discipline has been gaining importance in recent years because of increased competition as a result of globalisation. A supply chain usually consists of manufacturers, wholesalers and retailers.
 
