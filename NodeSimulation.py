@@ -1,10 +1,7 @@
 from Blockchain import Blockchain
 from Blockchain import Block
 import copy
-import time
 import matplotlib.pyplot as plt 
-
-NUM_SIMULATIONS = 10
 
 class Node:
     def __init__(self, xcoord, ycoord):
@@ -41,15 +38,15 @@ class Node:
 
 
 # Creating SCN nodes and specifying their location
-manufacturer1 = Node(10, 25)
-manufacturer2 = Node(12, 22)
+manufacturer1 = Node(30, 25)
+manufacturer2 = Node(10, 40)
 
-wholesaler1 = Node(25, 76)
-wholesaler2 = Node(30, 65)
-wholesaler3 = Node(27, 70)
+wholesaler1 = Node(10, 50)
+wholesaler2 = Node(50, 65)
+wholesaler3 = Node(27, 55)
 
-retailer1 = Node(56, 89)
-retailer2 = Node(43, 89)
+retailer1 = Node(50, 76)
+retailer2 = Node(25, 89)
 
 attacker = Node(11, 23)
 
@@ -62,47 +59,30 @@ manufacturer1.register_node(retailer1)
 manufacturer1.register_node(retailer2)
 
 # Performing transactions, Mining and Announcing to Peers
-# manufacturer1.produce(20)
-# manufacturer2.produce(30)
-# manufacturer1.transaction("send", "wholesaler2", 4)
-# manufacturer1.mine()
-# manufacturer2.transaction("send", "wholesaler3", 5)
-# manufacturer2.mine()
-# print(manufacturer2.number_of_goods)
-# manufacturer1.display_chain()
+manufacturer1.produce(20)
+manufacturer2.produce(30)
+manufacturer1.transaction("send", "wholesaler2", 4)
+manufacturer1.mine()
+manufacturer2.transaction("send", "wholesaler3", 5)
+manufacturer2.mine()
+print(manufacturer2.number_of_goods)
+manufacturer1.display_chain()
 
-# Measuring Performance
-transaction_cnt = []
-transaction_time = []
-transaction_tps = []
-for i in range(NUM_SIMULATIONS):
-    print("Running Simulation " + str(i+1))
-    cnt = 0
-    t1 = time.time()
-    t2 = 0
-    while 1:
-        t2 = time.time()
-        if (t2 - t1 >= 0.01 * (i+1)):
-            break
-        if (cnt % 2 == 0):
-            manufacturer1.transaction("send", "wholesaler1", 4)
-        elif (cnt % 2 == 1):
-            wholesaler1.transaction("send", "retailer1", 4)
-        cnt += 1
-    t3 = t2-t1
-    transaction_cnt.append(cnt)
-    transaction_time.append(t3)
-    transaction_tps.append(cnt/t3)
-    time.sleep(2)
+# Network Design Graph
+X = [manufacturer1.xcoord, manufacturer2.xcoord, wholesaler1.xcoord, wholesaler2.xcoord,
+     wholesaler3.xcoord, retailer1.xcoord, retailer2.xcoord]
 
-tps = sum(transaction_cnt)/sum(transaction_time)
+Y = [manufacturer1.ycoord, manufacturer2.ycoord, wholesaler1.ycoord, wholesaler2.ycoord,
+     wholesaler3.ycoord, retailer1.ycoord, retailer2.ycoord]
 
-print("Average throughput over " + str(NUM_SIMULATIONS) + " simulations is " + 
-    str(tps) + " transactions per second")
+n = ['manufacturer1', 'manufacturer2', 'wholesaler1', 'wholesaler2', 'wholesaler3', 
+    'retailer1', 'retailer2']
 
-plt.plot(transaction_cnt, transaction_tps)
+plt.scatter(X,Y)
+plt.xlabel('X Coordinate') 
+plt.ylabel('Y Coordinate')  
+plt.title('Graph Showing the Node Network Design') 
+for i, txt in enumerate(n):
+    plt.annotate(txt, (X[i], Y[i]))
+plt.show()
 
-plt.xlabel('Number of Transactions') 
-plt.ylabel('TPS')  
-plt.title('Analysis of throughput') 
-plt.show() 
