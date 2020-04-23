@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 class Node:
     def __init__(self, xcoord, ycoord):
         self.number_of_goods = 0
+        self.capacity = 50
         self.blockchain = Blockchain()
         self.peers = []
         self.blockchain.create_genesis_block()
