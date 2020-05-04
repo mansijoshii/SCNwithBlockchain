@@ -3,8 +3,12 @@ from NodeSimulation import Node
 import matplotlib.pyplot as plt
 random.seed(123)
 
-# Inputs
+# Graph Points
+cost = []
+time = []
+fitness = []
 
+# Inputs
 POPULATION_SIZE = 20
 NUM_TYPE_NODES = 3
 NUM_MAN = 2
@@ -60,16 +64,19 @@ def get_chromosome():
     chromosome.append(random.randint(0, NUM_RET-1))
     return chromosome
 
-def cal_fitness(chromosome):
+def cal_fitness(individual):
+    chromosome = individual.chromosome
     cost = 0
     cost += production_cost[chromosome[0]]
     cost += man_to_who_cost[chromosome[0]][chromosome[1]]
     cost += who_to_ret_cost[chromosome[1]][chromosome[2]]
-    
+    individual.cost = cost
+
     time = 0
     time += production_time[chromosome[0]]
     time += man_to_who_time[chromosome[0]][chromosome[1]]
     time += who_to_ret_time[chromosome[1]][chromosome[2]]
+    individual.time = time
 
     cap = 0
     if (manufacturer[chromosome[0]].number_of_goods + 1 <= manufacturer[chromosome[0]].capacity):
@@ -87,7 +94,7 @@ class Individual:
             self.chromosome = get_chromosome()
         else :
             self.chromosome = chromosome
-        self.fitness = cal_fitness(self.chromosome)
+        self.fitness = cal_fitness(self)
     # Operator overloading to sort according to fitness
     def __lt__(self, other):
         return self.fitness>other.fitness
@@ -126,22 +133,29 @@ def crossover (parent1, parent2):
 
 def find_population_fitness(population):
     sum_fitness = 0
+    sum_time = 0
+    sum_cost = 0
     for i in population:
         sum_fitness += i.fitness
-    return float(sum_fitness/POPULATION_SIZE)
+        sum_time += i.time
+        sum_cost += i.cost
+    new_avg_fitness = float(sum_fitness/POPULATION_SIZE)
+    fitness.append(new_avg_fitness)
+    time.append(float(sum_time/POPULATION_SIZE))
+    cost.append(float(sum_cost/POPULATION_SIZE))
+    return new_avg_fitness
 
 # Main Function
 
 def run_ga():
     generation = 0
     population = generate_initial_population()
-    fitness = []
+    population.sort()
     pvs_avg_fitness = 0
     new_avg_fitness = find_population_fitness(population)
     fitness.append(new_avg_fitness)
     print("Generation: 0" + " Fitness: " + str(new_avg_fitness))
-    while (abs(new_avg_fitness - pvs_avg_fitness) > 0.001):       
-        population.sort()
+    while (abs(new_avg_fitness - pvs_avg_fitness) > 0.001):          
         new_generation = []
         
         # Elitism, i.e, 10% of fittest population sent to next gen
@@ -158,16 +172,27 @@ def run_ga():
             new_generation.append(crossover(parent1, parent2))
         population = new_generation
         pvs_avg_fitness = new_avg_fitness
+        population.sort()
         new_avg_fitness = find_population_fitness(population)
-        fitness.append(new_avg_fitness)
         generation += 1
         print("Generation: " + str(generation) + " Fitness: " + str(new_avg_fitness))
     print("Solution chromosome: ")
     print(population[0].chromosome)
+    plot1 = plt.figure(1)
     plt.plot(fitness)
     plt.xlabel('Generation') 
     plt.ylabel('Fitness')  
     plt.title('Graph Showing Fitness Of the Solution Over Different Generations') 
+    plot2 = plt.figure(2)
+    plt.plot(cost)
+    plt.xlabel('Generation') 
+    plt.ylabel('Cost')  
+    plt.title('Graph Showing the Cost Of Transportation Over Different Generations') 
+    plot3 = plt.figure(3)
+    plt.plot(time)
+    plt.xlabel('Generation') 
+    plt.ylabel('Time')  
+    plt.title('Graph Showing the Time Needed For Transportation Over Different Generations') 
     plt.show()
 
 run_ga()
