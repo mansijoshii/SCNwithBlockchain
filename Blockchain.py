@@ -60,7 +60,7 @@ class Blockchain:
             return False
 
         if not Blockchain.is_valid_proof(block, proof):
-            print("Problem with hash")
+            print("Unacceptable hash")
             return False
 
         block.hash = proof

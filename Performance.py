@@ -2,7 +2,7 @@ from NodeSimulation import Node
 import time
 import matplotlib.pyplot as plt
 
-NUM_SIMULATIONS = 10
+NUM_SIMULATIONS = 1
 
 manufacturer1 = Node(10, 25)
 wholesaler1 = Node(25, 76)
@@ -48,3 +48,17 @@ plt.xlabel('Number of Transactions')
 plt.ylabel('TPS')  
 plt.title('Analysis of throughput') 
 plt.show() 
+
+for i in range(1000):
+    if (i % 2):
+        manufacturer1.transaction("send", "wholesaler1", 4)
+    else:
+        wholesaler1.transaction("send", "retailer1", 4)
+t1 = time.time()
+manufacturer1.mine()
+wholesaler1.mine()
+t2 = time.time()
+print("Mining time for 1000 transactions = ")
+print(t2-t1)
+print("Seconds")
+# manufacturer1.display_chain()
