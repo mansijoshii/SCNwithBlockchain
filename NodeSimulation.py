@@ -66,8 +66,8 @@ manufacturer1.transaction("send", "wholesaler2", 4)
 manufacturer1.mine()
 manufacturer2.transaction("send", "wholesaler3", 5)
 manufacturer2.mine()
-print(manufacturer2.number_of_goods)
-manufacturer1.display_chain()
+wholesaler1.transaction("send", "retailer2", 3)
+manufacturer1.mine()
 
 # Network Design Graph
 X = [manufacturer1.xcoord, manufacturer2.xcoord, wholesaler1.xcoord, wholesaler2.xcoord,
